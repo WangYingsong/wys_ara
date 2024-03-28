@@ -1,0 +1,43 @@
+packages:
+  apb:
+    revision: null
+    version: null
+    source:
+      Path: hardware/deps/apb
+    dependencies:
+    - common_cells
+  axi:
+    revision: null
+    version: null
+    source:
+      Path: hardware/deps/axi
+    dependencies:
+    - common_cells
+    - common_verification
+  common_cells:
+    revision: null
+    version: null
+    source:
+      Path: hardware/deps/common_cells
+    dependencies:
+    - common_verification
+    - tech_cells_generic
+  common_verification:
+    revision: null
+    version: null
+    source:
+      Path: hardware/deps/common_verification
+    dependencies: []
+  cva6:
+    revision: null
+    version: null
+    source:
+      Path: hardware/deps/cva6
+    dependencies: []
+  tech_cells_generic:
+    revision: null
+    version: null
+    source:
+      Path: hardware/deps/tech_cells_generic
+    dependencies:
+    - common_verification
