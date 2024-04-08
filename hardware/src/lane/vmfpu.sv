@@ -647,7 +647,7 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
   endfunction : next_mfpu_state
 
   // Deactivate all masked or position disabled elements
-  function automatic elen_t processed_red_operand(elen_t mfpu_operand, logic is_masked, strb_t mask, logic [3:0] issue_element_cnt, elen_t ntr_val);
+  function automatic elen_t processed_red_operand(elen_t mfpu_operand, logic is_masked, strb_t mask, logic [6:0] issue_element_cnt, elen_t ntr_val);
     automatic strb_t pos_mask = be(issue_element_cnt, vinsn_issue_q.vtype.vsew);
     for (int i=0; i<8; i++)
       processed_red_operand[8*i +: 8] = ((~is_masked | mask[i]) & pos_mask[i]) ? mfpu_operand[8*i +: 8] : ntr_val[8*i +: 8];
@@ -1397,9 +1397,9 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
               // automatic logic [3:0] issue_element_cnt_narrow =
               //   (1 << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))) / 2;
               // wys
-              automatic logic [3:0] issue_element_cnt =
+              automatic logic [6:0] issue_element_cnt =
                 (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew)));
-              automatic logic [3:0] issue_element_cnt_narrow =
+              automatic logic [6:0] issue_element_cnt_narrow =
                 (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))) / 2;
 
               // Update the number of elements still to be issued
@@ -1495,8 +1495,8 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
           // automatic logic [3:0] processed_element_cnt = (1 << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew)));
           // automatic logic [3:0] processed_element_cnt_narrow = (1 << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew))) / 2;
           // wys
-          automatic logic [3:0] processed_element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew)));
-          automatic logic [3:0] processed_element_cnt_narrow = (Nr_SIMD << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew))) / 2;
+          automatic logic [6:0] processed_element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew)));
+          automatic logic [6:0] processed_element_cnt_narrow = (Nr_SIMD << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew))) / 2;
 
           // Update the number of elements still to be processed
           if (processed_element_cnt > to_process_cnt_q)
@@ -1573,7 +1573,7 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
         // Update the element issue counter and the related issue_be signal for the divider
         // How many elements are we issuing?
         // automatic logic [3:0] issue_element_cnt = (1 << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew)));
-        automatic logic [3:0] issue_element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))); // wys
+        automatic logic [6:0] issue_element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))); // wys
 
         // If the workload is unbalanced and some lanes already have commit_cnt == '0,
         // delay the commit until we are over with the inter-lanes phase
@@ -1601,7 +1601,7 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
           if (vfpu_out_valid && !result_queue_full) begin
             // How many elements have we processed?
             // automatic logic [3:0] processed_element_cnt = (1 << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew)));
-            automatic logic [3:0] processed_element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew))); // wys
+            automatic logic [6:0] processed_element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_processing_q.vtype.vsew))); // wys
             // Update the number of elements still to be processed
             if (processed_element_cnt > to_process_cnt_q)
               processed_element_cnt = to_process_cnt_q;
@@ -2021,7 +2021,7 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
           // This information is useful for reduction operation
           first_op_d         = 1'b1;
           reduction_rx_cnt_d = reduction_rx_cnt_init(NrLanes, lane_id_i);
-          sldu_transactions_cnt_d = $clog2(NrLanes) + 1;
+          sldu_transactions_cnt_d = $clog2(Nr_SIMD) + 1; //wys
           // Allow the first valid
           red_hs_synch_d = !(vinsn_issue_d.op inside {VFREDOSUM, VFWREDOSUM}) & is_reduction(vinsn_issue_d.op);
 
@@ -2058,7 +2058,7 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
       // automatic logic [3:0] commit_element_cnt =
       //   (1 << (int'(EW64) - int'(vinsn_commit.vtype.vsew)));
       // wys
-      automatic logic [3:0] commit_element_cnt =
+      automatic logic [6:0] commit_element_cnt =
         (Nr_SIMD << (int'(EW64) - int'(vinsn_commit.vtype.vsew)));
 
       result_queue_valid_d[result_queue_read_pnt_q] = 1'b0;
@@ -2102,7 +2102,7 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
           // This information is useful for reduction operation
           first_op_d         = 1'b1;
           reduction_rx_cnt_d = reduction_rx_cnt_init(NrLanes, lane_id_i);
-          sldu_transactions_cnt_d = $clog2(NrLanes) + 1;
+          sldu_transactions_cnt_d = $clog2(Nr_SIMD) + 1; //wys
           // Allow the first valid
           red_hs_synch_d = !(vinsn_issue_d.op inside {VFREDOSUM, VFWREDOSUM}) & is_reduction(vinsn_issue_d.op);
 
@@ -2137,7 +2137,7 @@ module vmfpu import ara_pkg::*; import rvv_pkg::*; import fpnew_pkg::*;
         // This information is useful for reduction operation
         first_op_d              = 1'b1;
         reduction_rx_cnt_d      = reduction_rx_cnt_init(NrLanes, lane_id_i);
-        sldu_transactions_cnt_d = $clog2(NrLanes) + 1;
+        sldu_transactions_cnt_d = $clog2(Nr_SIMD) + 1; //wys
         // Allow the first valid
         red_hs_synch_d          =
           !(vfu_operation_i.op inside {VFREDOSUM, VFWREDOSUM}) & is_reduction(vfu_operation_i.op);

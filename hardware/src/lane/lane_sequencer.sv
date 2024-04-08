@@ -554,7 +554,7 @@ module lane_sequencer import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::
 
               // We need to trim full words from the start of the vector that are not used
               // as operands by the slide unit.
-              operand_request_i[SlideAddrGenA].vstart = pe_req.stride / NrLanes;
+              operand_request_i[SlideAddrGenA].vstart = (pe_req.stride % 2 == 0) ? pe_req.stride : pe_req.stride - 1; // wys
 
               // The stride move the initial address in boundaries of 8*NrLanes Byte.
               // If the stride is not multiple of a full VRF word (8*NrLanes Byte),
@@ -562,12 +562,12 @@ module lane_sequencer import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::
 
               // Find the number of extra elements to ask, related to the stride
               unique case (pe_req.eew_vs2)
-                EW8 : extra_stride = pe_req.stride[$clog2(8*NrLanes)-1:0];
-                EW16: extra_stride = {1'b0, pe_req.stride[$clog2(4*NrLanes)-1:0]};
-                EW32: extra_stride = {2'b0, pe_req.stride[$clog2(2*NrLanes)-1:0]};
-                EW64: extra_stride = 3'b0;//{3'b0, pe_req.stride[$clog2(1*NrLanes)-1:0]};
+                EW8 : extra_stride = pe_req.stride[$clog2(8*Nr_SIMD)-1:0];
+                EW16: extra_stride = {1'b0, pe_req.stride[$clog2(4*Nr_SIMD)-1:0]};
+                EW32: extra_stride = {2'b0, pe_req.stride[$clog2(2*Nr_SIMD)-1:0]};
+                EW64: extra_stride = (Nr_SIMD==1) ? 3'b0 : {3'b0, pe_req.stride[$clog2(1*Nr_SIMD)-1:0]};
                 default:
-                  extra_stride = 3'b0;//{3'b0, pe_req.stride[$clog2(1*NrLanes)-1:0]};
+                  extra_stride = (Nr_SIMD==1) ? 3'b0 : {3'b0, pe_req.stride[$clog2(1*Nr_SIMD)-1:0]};
               endcase
 
               // Find the total number of elements to be asked

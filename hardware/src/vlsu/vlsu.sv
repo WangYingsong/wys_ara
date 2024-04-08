@@ -50,13 +50,13 @@ module vlsu import ara_pkg::*; import rvv_pkg::*; #(
     input  logic                     stu_operand_valid_i,
     output logic                     stu_operand_ready_o,
     // Address generation operands
-    input  elen_t                    addrgen_operand_i,
-    input  target_fu_e               addrgen_operand_target_fu_i,
-    input  logic                     addrgen_operand_valid_i,
+    input  elen_t      [NrLanes-1:0] addrgen_operand_i,
+    input  target_fu_e [NrLanes-1:0] addrgen_operand_target_fu_i,
+    input  logic       [NrLanes-1:0] addrgen_operand_valid_i,
     output logic                     addrgen_operand_ready_o,
     // Interface with the Mask unit
-    input  strb_t                    mask_i,
-    input  logic                     mask_valid_i,
+    input  strb_t      [NrLanes-1:0] mask_i,
+    input  logic       [NrLanes-1:0] mask_valid_i,
     output logic                     vldu_mask_ready_o,
     output logic                     vstu_mask_ready_o,
     // Results

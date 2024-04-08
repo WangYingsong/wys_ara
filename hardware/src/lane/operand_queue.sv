@@ -42,7 +42,9 @@ module operand_queue import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::i
     output elen_simd_t                        operand_o, // wys
     output target_fu_e                        operand_target_fu_o,
     output logic                              operand_valid_o,
-    input  logic               [NrSlaves-1:0] operand_ready_i
+    input  logic               [NrSlaves-1:0] operand_ready_i,
+    // whether is ALUA or MFPUA
+    input  logic                              is_alua_mfpua
   );
 
   //////////////////////
@@ -404,7 +406,7 @@ module operand_queue import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::i
     vl_d     = vl_q;
 
     // Send the operand
-    operand_o       = conv_operand;
+    operand_o = (cmd.is_reduct && is_alua_mfpua == 1) ? (conv_operand & ((1 << 64) - 1)) : conv_operand; // wys
     operand_valid_o = ibuf_operand_valid;
     // Encode the target functional unit when it is not clear
     // Default encoding: SLDU == 1'b0, ADDRGEN == 1'b1

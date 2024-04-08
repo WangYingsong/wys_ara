@@ -844,8 +844,8 @@ module masku import ara_pkg::*; import rvv_pkg::*; #(
             result_queue_d[result_queue_write_pnt_q][lane] = '{
               wdata: result_queue_q[result_queue_write_pnt_q][lane].wdata | alu_result[lane],
               be   : (vinsn_issue.op inside {[VMSBF:VID]}) ? '1 : be(element_cnt, vinsn_issue.vtype.vsew),
-              addr : (vinsn_issue.op inside {[VMSBF:VID]}) ? vaddr(vinsn_issue.vd, NrLanes) + ((vinsn_issue.vl - issue_cnt_q) >> (int'(EW64) - vinsn_issue.vtype.vsew)) : vaddr(vinsn_issue.vd, NrLanes) +
-                (((vinsn_issue.vl - issue_cnt_q) / NrLanes / DataWidth)),
+              addr : (vinsn_issue.op inside {[VMSBF:VID]}) ? vaddr(vinsn_issue.vd, 1) + ((vinsn_issue.vl - issue_cnt_q) >> (int'(EW64) - vinsn_issue.vtype.vsew)) : vaddr(vinsn_issue.vd, 1) +
+                (((vinsn_issue.vl - issue_cnt_q) / 1 / DataWidth)), // wys
               id : vinsn_issue.id
             };
           end

@@ -31,7 +31,7 @@ package ara_pkg;
   localparam int unsigned MaxNrLanes = 16;
 
   // Number of simd
-  localparam int unsigned Nr_SIMD = 8;
+  localparam int unsigned Nr_SIMD = 2;
 
   // Ara Features.
 
@@ -1074,7 +1074,7 @@ package ara_pkg;
   // The following function generates a 8-bit wide byte enable signal, based on how many
   // valid elements are there in that lane word, and the element width.
 
-  function automatic logic [ELEN/8-1:0] be(logic [3:0] cnt, rvv_pkg::vew_e ew);
+  function automatic logic [ELEN/8-1:0] be(logic [6:0] cnt, rvv_pkg::vew_e ew); // wys
     unique case (ew)
       rvv_pkg::EW8:
         for (int el = 0; el < 8; el++)

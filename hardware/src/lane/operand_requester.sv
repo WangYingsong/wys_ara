@@ -54,7 +54,7 @@ module operand_requester import ara_pkg::*; import rvv_pkg::*; #(
     input  logic                                       masku_result_req_i,
     input  vid_t                                       masku_result_id_i,
     input  vaddr_t                                     masku_result_addr_i,
-    input  elen_t                                      masku_result_wdata_i, // wys
+    input  elen_simd_t                                 masku_result_wdata_i, // wys
     input  strb_t                                      masku_result_be_i,
     output logic                                       masku_result_gnt_o,
     output logic                                       masku_result_final_gnt_o,
@@ -62,7 +62,7 @@ module operand_requester import ara_pkg::*; import rvv_pkg::*; #(
     input  logic                                       sldu_result_req_i,
     input  vid_t                                       sldu_result_id_i,
     input  vaddr_t                                     sldu_result_addr_i,
-    input  elen_t                                      sldu_result_wdata_i, // wys
+    input  elen_simd_t                                 sldu_result_wdata_i, // wys
     input  strb_t                                      sldu_result_be_i,
     output logic                                       sldu_result_gnt_o,
     output logic                                       sldu_result_final_gnt_o,
@@ -110,12 +110,12 @@ module operand_requester import ara_pkg::*; import rvv_pkg::*; #(
   );
 
   // Slide unit
-  vid_t    sldu_result_id;
-  vaddr_t  sldu_result_addr;
-  elen_t   sldu_result_wdata;
-  strb_t   sldu_result_be;
-  logic    sldu_result_req;
-  logic    sldu_result_gnt;
+  vid_t         sldu_result_id;
+  vaddr_t       sldu_result_addr;
+  elen_simd_t   sldu_result_wdata;
+  strb_t        sldu_result_be;
+  logic         sldu_result_req;
+  logic         sldu_result_gnt;
   stream_register #(.T(stream_register_payload_t)) i_sldu_stream_register (
     .clk_i     (clk_i                                                                        ),
     .rst_ni    (rst_ni                                                                       ),
@@ -130,12 +130,12 @@ module operand_requester import ara_pkg::*; import rvv_pkg::*; #(
   );
 
   // Mask unit
-  vid_t    masku_result_id;
-  vaddr_t  masku_result_addr;
-  elen_t   masku_result_wdata;
-  strb_t   masku_result_be;
-  logic    masku_result_req;
-  logic    masku_result_gnt;
+  vid_t         masku_result_id;
+  vaddr_t       masku_result_addr;
+  elen_simd_t   masku_result_wdata;
+  strb_t        masku_result_be;
+  logic         masku_result_req;
+  logic         masku_result_gnt;
   stream_register #(.T(stream_register_payload_t)) i_masku_stream_register (
     .clk_i     (clk_i                                                                            ),
     .rst_ni    (rst_ni                                                                           ),

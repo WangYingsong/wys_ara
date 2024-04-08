@@ -36,13 +36,13 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     output logic                                     stu_operand_valid_o,
     input  logic                                     stu_operand_ready_i,
     // Slide Unit/Address Generation unit
-    output elen_t                                    sldu_addrgen_operand_o, 
+    output elen_simd_t                               sldu_addrgen_operand_o, 
     output target_fu_e                               sldu_addrgen_operand_target_fu_o,
     output logic                                     sldu_addrgen_operand_valid_o,
     input  logic                                     addrgen_operand_ready_i,
     input  logic                                     sldu_operand_ready_i,
     // Mask unit
-    output elen_t              [1:0]                 mask_operand_o,
+    output elen_simd_t         [1:0]                 mask_operand_o,
     output logic               [1:0]                 mask_operand_valid_o,
     input  logic               [1:0]                 mask_operand_ready_i
   );
@@ -74,7 +74,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (alu_operand_o[0]               ),
     .operand_target_fu_o      (/* Unused */                   ),
     .operand_valid_o          (alu_operand_valid_o[0]         ),
-    .operand_ready_i          (alu_operand_ready_i[0]         )
+    .operand_ready_i          (alu_operand_ready_i[0]         ),
+    .is_alua_mfpua            (1'b1                           )
   );
 
   operand_queue #(
@@ -100,7 +101,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (alu_operand_o[1]               ),
     .operand_target_fu_o      (/* Unused */                   ),
     .operand_valid_o          (alu_operand_valid_o[1]         ),
-    .operand_ready_i          (alu_operand_ready_i[1]         )
+    .operand_ready_i          (alu_operand_ready_i[1]         ),
+    .is_alua_mfpua            (1'b0                           )
   );
   
   //////////////////////
@@ -128,7 +130,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (mfpu_operand_o[0]                 ),
     .operand_target_fu_o      (/* Unused */                      ),
     .operand_valid_o          (mfpu_operand_valid_o[0]           ),
-    .operand_ready_i          (mfpu_operand_ready_i[0]           )
+    .operand_ready_i          (mfpu_operand_ready_i[0]           ),
+    .is_alua_mfpua            (1'b1                              )
   );
 
   operand_queue #(
@@ -152,7 +155,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (mfpu_operand_o[1]                 ),
     .operand_target_fu_o      (/* Unused */                      ),
     .operand_valid_o          (mfpu_operand_valid_o[1]           ),
-    .operand_ready_i          (mfpu_operand_ready_i[1]           )
+    .operand_ready_i          (mfpu_operand_ready_i[1]           ),
+    .is_alua_mfpua            (1'b0                              )
   );
 
   operand_queue #(
@@ -176,7 +180,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (mfpu_operand_o[2]                 ),
     .operand_target_fu_o      (/* Unused */                      ),
     .operand_valid_o          (mfpu_operand_valid_o[2]           ),
-    .operand_ready_i          (mfpu_operand_ready_i[2]           )
+    .operand_ready_i          (mfpu_operand_ready_i[2]           ),
+    .is_alua_mfpua            (1'b0                              )
   );
 
   ///////////////////////
@@ -201,7 +206,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (stu_operand_o                 ),
     .operand_target_fu_o      (/* Unused */                  ),
     .operand_valid_o          (stu_operand_valid_o           ),
-    .operand_ready_i          (stu_operand_ready_i           )
+    .operand_ready_i          (stu_operand_ready_i           ),
+    .is_alua_mfpua            (1'b0                          )
   );
 
   /****************
@@ -226,7 +232,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (sldu_addrgen_operand_o                        ),
     .operand_target_fu_o      (sldu_addrgen_operand_target_fu_o              ),
     .operand_valid_o          (sldu_addrgen_operand_valid_o                  ),
-    .operand_ready_i          (addrgen_operand_ready_i | sldu_operand_ready_i)
+    .operand_ready_i          (addrgen_operand_ready_i | sldu_operand_ready_i),
+    .is_alua_mfpua            (1'b0                                          ) 
   );
 
   /////////////////
@@ -254,7 +261,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (mask_operand_o[1]               ),
     .operand_target_fu_o      (/* Unused */                    ),
     .operand_valid_o          (mask_operand_valid_o[1]         ),
-    .operand_ready_i          (mask_operand_ready_i[1]         )
+    .operand_ready_i          (mask_operand_ready_i[1]         ),
+    .is_alua_mfpua            (1'b0                            )
   );
 
   operand_queue #(
@@ -274,7 +282,8 @@ module operand_queues_stage import ara_pkg::*; import rvv_pkg::*; import cf_math
     .operand_o                (mask_operand_o[0]               ),
     .operand_target_fu_o      (/* Unused */                    ),
     .operand_valid_o          (mask_operand_valid_o[0]         ),
-    .operand_ready_i          (mask_operand_ready_i[0]         )
+    .operand_ready_i          (mask_operand_ready_i[0]         ),
+    .is_alua_mfpua            (1'b0                            )
   );
 
 endmodule : operand_queues_stage

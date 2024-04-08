@@ -469,7 +469,8 @@ module sldu import ara_pkg::*; import rvv_pkg::*; #(
               issue_cnt_d -= vinsn_issue_q.stride[$bits(issue_cnt_d)-1:0];
 
               // Start writing at the middle of the destination vector
-              vrf_pnt_d = vinsn_issue_q.stride >> $clog2(8*NrLanes);
+              // vrf_pnt_d = vinsn_issue_q.stride >> $clog2(8*NrLanes);
+              vrf_pnt_d = ((vinsn_issue_q.stride >> 3) % 2 == 0)?(vinsn_issue_q.stride >> 3):((vinsn_issue_q.stride >> 3)-1); // wys
 
               // Go to SLIDE_RUN_VSLIDE1UP_FIRST_WORD if this is a vslide1up instruction
               if (vinsn_issue_q.use_scalar_op)
@@ -555,8 +556,7 @@ module sldu import ara_pkg::*; import rvv_pkg::*; #(
           // Initialize id and addr fields of the result queue requests
           for (int lane = 0; lane < NrLanes; lane++) begin
             result_queue_d[result_queue_write_pnt_q][lane].id   = vinsn_issue_q.id;
-            result_queue_d[result_queue_write_pnt_q][lane].addr =
-              vaddr(vinsn_issue_q.vd, NrLanes) + vrf_pnt_q;
+            result_queue_d[result_queue_write_pnt_q][lane].addr = vaddr(vinsn_issue_q.vd, 1) + vrf_pnt_q; // wys
           end
 
           // Bump pointers (reductions always finish in one shot)
@@ -625,7 +625,7 @@ module sldu import ara_pkg::*; import rvv_pkg::*; #(
               mask_ready_d = !vinsn_issue_q.vm;
 
             // Increment VRF address
-            vrf_pnt_d = vrf_pnt_q + 1;
+            vrf_pnt_d = vrf_pnt_q + Nr_SIMD; // wys
 
             // Send result to the VRF
             result_queue_cnt_d += 1;
@@ -649,7 +649,7 @@ module sldu import ara_pkg::*; import rvv_pkg::*; #(
               // Copy the scalar operand to the last word
               automatic int out_seq_byte = issue_cnt_q;
               automatic int out_byte = shuffle_index(out_seq_byte, NrLanes, vinsn_issue_q.vtype.vsew);
-              automatic int tgt_lane = '0;
+              automatic int tgt_lane = (NrLanes==1) ? '0 : out_byte[3 +: $clog2(NrLanes)];
               automatic int tgt_lane_offset = out_byte[2:0];
 
               unique case (vinsn_issue_q.vtype.vsew)

@@ -313,10 +313,6 @@ module vldu import ara_pkg::*; import rvv_pkg::*; #(
         issue_cnt_d = issue_cnt_q - NrLanes * 8;
         if (issue_cnt_q < NrLanes * 8)
           issue_cnt_d = '0;
-        // wys
-        // issue_cnt_d = issue_cnt_q - 8;
-        // if (issue_cnt_q < 8)
-        //   issue_cnt_d = '0;
       end
 
       // Consumed all valid bytes in this R beat

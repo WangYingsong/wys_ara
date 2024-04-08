@@ -450,7 +450,7 @@ module valu import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::idx_width;
                 (mask_valid_i || vinsn_issue_q.vm)) begin
               // How many elements are we committing with this word?
               // automatic logic [3:0] element_cnt = (1 << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew)));
-              automatic logic [3:0] element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))); // wys 
+              automatic logic [6:0] element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))); // wys 
               if (element_cnt > issue_cnt_q)
                 element_cnt = issue_cnt_q;
 
@@ -476,7 +476,7 @@ module valu import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::idx_width;
               if (narrowing(vinsn_issue_q.op)) begin
                 // How many elements did we calculate in this iteration?
                 // automatic logic [3:0] element_cnt_narrow = (1 << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))) / 2;
-                automatic logic [3:0] element_cnt_narrow = (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))) / 2;
+                automatic logic [6:0] element_cnt_narrow = (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))) / 2;
                 if (element_cnt_narrow > issue_cnt_q)
                   element_cnt_narrow = issue_cnt_q;
 
@@ -550,7 +550,7 @@ module valu import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::idx_width;
                 (mask_valid_i || vinsn_issue_q.vm)) begin
               // How many elements are we committing with this word?
               // automatic logic [3:0] element_cnt = (1 << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew)));
-              automatic logic [3:0] element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))); // wys
+              automatic logic [6:0] element_cnt = (Nr_SIMD << (int'(EW64) - int'(vinsn_issue_q.vtype.vsew))); // wys
               if (element_cnt > issue_cnt_q)
                 element_cnt = issue_cnt_q;
 
@@ -789,7 +789,7 @@ module valu import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::idx_width;
         // Initialize reduction-related sequential elements
         first_op_d              = 1'b1;
         reduction_rx_cnt_d      = reduction_rx_cnt_init(NrLanes, lane_id_i);
-        sldu_transactions_cnt_d = $clog2(NrLanes) + 1;
+        sldu_transactions_cnt_d = $clog2(Nr_SIMD) + 1; // wys
 
         alu_state_d = INTRA_LANE_REDUCTION;
       end else begin
@@ -817,7 +817,7 @@ module valu import ara_pkg::*; import rvv_pkg::*; import cf_math_pkg::idx_width;
         // Initialize reduction-related sequential elements
         first_op_d              = 1'b1;
         reduction_rx_cnt_d      = reduction_rx_cnt_init(NrLanes, lane_id_i);
-        sldu_transactions_cnt_d = $clog2(NrLanes) + 1;
+        sldu_transactions_cnt_d = $clog2(Nr_SIMD) + 1; //wys
 
         issue_cnt_d = vfu_operation_i.vl;
         if (!(vfu_operation_i.op inside {[VMANDNOT:VMXNOR]}))

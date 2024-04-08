@@ -56,9 +56,9 @@ module lane import ara_pkg::*; import rvv_pkg::*; #(
     output logic                                           stu_operand_valid_o,
     input  logic                                           stu_operand_ready_i,
     // Interface with the Slide/Address Generation unit
-    output elen_t                                          sldu_addrgen_operand_o, // wys
+    output elen_simd_t                                     sldu_addrgen_operand_o, // wys
     output target_fu_e                                     sldu_addrgen_operand_target_fu_o,
-    output logic                                           sldu_addrgen_operand_valid_o,
+    output logic     [Nr_SIMD-1:0]                         sldu_addrgen_operand_valid_o,
     input  logic                                           sldu_operand_ready_i,
     input  sldu_mux_e                                      sldu_mux_sel_i,
     input  logic                                           addrgen_operand_ready_i,
@@ -66,7 +66,7 @@ module lane import ara_pkg::*; import rvv_pkg::*; #(
     input  logic                                           sldu_result_req_i,
     input  vid_t                                           sldu_result_id_i,
     input  vaddr_t                                         sldu_result_addr_i,
-    input  elen_t                                          sldu_result_wdata_i, // wys
+    input  elen_simd_t                                     sldu_result_wdata_i, // wys
     input  strb_t                                          sldu_result_be_i,
     output logic                                           sldu_result_gnt_o,
     input  logic                                           sldu_red_valid_i,
@@ -80,13 +80,13 @@ module lane import ara_pkg::*; import rvv_pkg::*; #(
     output logic                                           ldu_result_gnt_o,
     output logic                                           ldu_result_final_gnt_o,
     // Interface with the Mask unit
-    output `STRUCT_VECT(elen_t, [NrMaskFUnits+2-1:0])      mask_operand_o,
+    output elen_simd_t          [NrMaskFUnits+2-1:0]       mask_operand_o,
     output logic                [NrMaskFUnits+2-1:0]       mask_operand_valid_o,
     input  logic                [NrMaskFUnits+2-1:0]       mask_operand_ready_i,
     input  logic                                           masku_result_req_i,
     input  vid_t                                           masku_result_id_i,
     input  vaddr_t                                         masku_result_addr_i,
-    input  elen_t                                          masku_result_wdata_i, // wys
+    input  elen_simd_t                                     masku_result_wdata_i, // wys
     input  strb_t                                          masku_result_be_i,
     output logic                                           masku_result_gnt_o,
     output logic                                           masku_result_final_gnt_o,
@@ -299,7 +299,7 @@ module lane import ara_pkg::*; import rvv_pkg::*; #(
   logic       [2:0] mfpu_operand_valid;
   logic       [2:0] mfpu_operand_ready;
 
-  elen_t sldu_addrgen_operand_opqueues; // wys
+  elen_simd_t sldu_addrgen_operand_opqueues; // wys
 
   logic sldu_operand_opqueues_ready;
   logic sldu_addrgen_operand_opqueues_valid;
@@ -349,10 +349,10 @@ module lane import ara_pkg::*; import rvv_pkg::*; #(
   ///////////////////////////////
 
   // Reductions
-  logic sldu_alu_gnt, sldu_mfpu_gnt;
-  logic sldu_alu_valid, sldu_mfpu_valid;
-  logic sldu_alu_req_valid_o, sldu_mfpu_req_valid_o;
-  logic sldu_alu_ready, sldu_mfpu_ready;
+  logic               sldu_alu_gnt, sldu_mfpu_gnt;
+  logic               sldu_alu_valid, sldu_mfpu_valid;
+  logic [Nr_SIMD-1:0] sldu_alu_req_valid_o, sldu_mfpu_req_valid_o;
+  logic               sldu_alu_ready, sldu_mfpu_ready;
 
   vector_fus_stage #(
     .NrLanes     (NrLanes     ),
@@ -439,7 +439,7 @@ module lane import ara_pkg::*; import rvv_pkg::*; #(
   // The selectors are controlled by the slide unit itself, which must know what it will receive next.
   assign sldu_addrgen_operand_o       = sldu_mux_sel_q == NO_RED ? sldu_addrgen_operand_opqueues :
                                        (sldu_mux_sel_q == ALU_RED ? alu_result_wdata : mfpu_result_wdata);
-  assign sldu_addrgen_operand_valid_o = sldu_mux_sel_q == NO_RED ? sldu_addrgen_operand_opqueues_valid :
+  assign sldu_addrgen_operand_valid_o = sldu_mux_sel_q == NO_RED ? {Nr_SIMD{sldu_addrgen_operand_opqueues_valid}} :
                                        (sldu_mux_sel_q == ALU_RED ? sldu_alu_req_valid_o : sldu_mfpu_req_valid_o);
   assign sldu_operand_opqueues_ready  = sldu_operand_ready_i & (sldu_mux_sel_q == NO_RED);
   assign sldu_alu_gnt                 = sldu_operand_ready_i & (sldu_mux_sel_q == ALU_RED);
